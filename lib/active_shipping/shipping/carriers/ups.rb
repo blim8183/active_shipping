@@ -112,7 +112,135 @@ module ActiveMerchant
         response = commit(:track, save_request(access_request + tracking_request), (options[:test] || false))
         parse_tracking_response(response, options)
       end
-      
+
+      def build_confirmation_request(carrier_service, packages, label_specification, options)
+        packages = Array(packages)
+        xml_request = XmlNode.new('ShipmentConfirmRequest') do |root_node|
+          root_node << XmlNode.new('Request') do |request|
+            request << XmlNode.new('RequestAction', 'ShipConfirm')
+            request << XmlNode.new('RequestOption', 'nonvalidate')
+          end
+          root_node << XmlNode.new('Shipment') do |shipment|
+            shipment << XmlNode.new('Shipper') do |shipper|
+              shipper << XmlNode.new("Name", options[:origin][:name])
+              shipper << XmlNode.new("AttentionName", options[:origin][:attention_name]) unless options[:origin][:attention_name].blank?
+              shipper << XmlNode.new("ShipperNumber", options[:origin][:origin_number])
+              shipper << XmlNode.new("PhoneNumber", options[:origin][:phone]) unless options[:origin][:phone].blank?
+              shipper << XmlNode.new("Address") do |address|
+                address << XmlNode.new("AddressLine1", options[:origin][:address_line1]) unless options[:origin][:address_line1].blank?
+                address << XmlNode.new("AddressLine2", options[:origin][:address_line2]) unless options[:origin][:address_line2].blank?
+                address << XmlNode.new("AddressLine3", options[:origin][:address_line3]) unless options[:origin][:address_line3].blank?
+                address << XmlNode.new("City", options[:origin][:city]) unless options[:origin][:city].blank?
+                address << XmlNode.new("StateProvinceCode", options[:origin][:state]) unless options[:origin][:state].blank?
+                address << XmlNode.new("PostalCode", options[:origin][:zip]) unless options[:origin][:zip].blank?
+                address << XmlNode.new("CountryCode", options[:origin][:country]) unless options[:origin][:country].blank?
+                address << XmlNode.new("ResidentialAddressIndicator", options[:origin][:residential_indicator]) unless options[:origin][:residential_indicator].blank?
+              end
+            end
+            shipment << XmlNode.new('ShipTo') do |shipto|
+              shipto << XmlNode.new("CompanyName", options[:destination][:company_name])
+              shipto << XmlNode.new("AttentionName", options[:destination][:attention_name]) unless options[:destination][:attention_name].blank?
+              shipto << XmlNode.new("PhoneNumber", options[:destination][:phone]) unless options[:destination][:phone].blank?
+              shipto << XmlNode.new("Address") do |address|
+                address << XmlNode.new("AddressLine1", options[:destination][:address_line1]) unless options[:destination][:address_line1].blank?
+                address << XmlNode.new("AddressLine2", options[:destination][:address_line2]) unless options[:destination][:address_line2].blank?
+                address << XmlNode.new("AddressLine3", options[:destination][:address_line3]) unless options[:destination][:address_line3].blank?
+                address << XmlNode.new("City", options[:destination][:city]) unless options[:destination][:city].blank?
+                address << XmlNode.new("StateProvinceCode", options[:destination][:state]) unless options[:destination][:state].blank?
+                address << XmlNode.new("PostalCode", options[:destination][:zip]) unless options[:destination][:zip].blank?
+                address << XmlNode.new("CountryCode", options[:destination][:country]) unless options[:destination][:country].blank?
+                address << XmlNode.new("ResidentialAddressIndicator", options[:destination][:residential_indicator]) unless options[:destination][:residential_indicator].blank?
+              end
+            end
+            shipment << XmlNode.new('Service') do |shipment_service|
+              shipment_service << XmlNode.new('Code', carrier_service || "14")
+              shipment_service << XmlNode.new('Description', DEFAULT_SERVICES[carrier_service] || DEFAULT_SERVICES["14"])
+            end
+            shipment << XmlNode.new('PaymentInformation') do |payment_info|
+              payment_info << XmlNode.new('Prepaid') do |prepaid|
+                prepaid << XmlNode.new('BillShipper') do |bill_shipper|
+                  bill_shipper << XmlNode.new('AccountNumber', options[:origin][:origin_number])
+                end
+              end
+            end
+            packages.each do |package|
+              imperial = ['US', 'LR', 'MM'].include?(options[:origin][:country])
+              shipment << XmlNode.new("Package") do |package_node|
+                package_node << XmlNode.new("PackagingType") do |packaging_type|
+                  packaging_type << XmlNode.new("Code", '02')
+                end
+                package_node << XmlNode.new("Dimensions") do |dimensions|
+                  dimensions << XmlNode.new("UnitOfMeasurement") do |units|
+                    units << XmlNode.new("Code", imperial ? 'IN' : 'CM')
+                  end
+                  [:length, :width, :height].each do |axis|
+                    value = ((imperial ? package.inches(axis) : package.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
+                    dimensions << XmlNode.new(axis.to_s.capitalize, [value, 0.1].max)
+                  end
+                end
+                package_node << XmlNode.new("PackageWeight") do |package_weight|
+                  package_weight << XmlNode.new("UnitOfMeasurement") do |units|
+                    units << XmlNode.new("Code", imperial ? 'LBS' : 'KGS')
+                  end
+                  value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # 3 decimals
+                  package_weight << XmlNode.new("Weight", [value, 0.1].max)
+                end
+                unless package.value.blank?
+                  package_node << XmlNode.new("PackageServiceOptions") do |package_service_options|
+                    package_service_options << XmlNode.new("InsuredValue") do |insured_value|
+                      currency = package.currency.blank? ? "USD" : package.currency.to_s
+                      insured_value << XmlNode.new("CurrencyCode", currency)
+                      insured_value << XmlNode.new("MonetaryValue", package.value.to_s)
+                    end
+                  end
+                end
+              end
+            end
+          end
+          root_node << XmlNode.new('LabelSpecification') do |label|
+            label << XmlNode.new('LabelPrintMethod') do |print_method|
+              print_method << XmlNode.new('Code', label_specification[:print_code] || "GIF")
+            end
+            label << XmlNode.new('HTTPUserAgent', label_specification[:user_agent] || "Mozilla/4.5")
+            label << XmlNode.new('LabelImageFormat') do |image_format|
+              image_format << XmlNode.new('Code', label_specification[:format_code] || "GIF")
+            end
+          end
+        end
+        xml_request.to_s
+      end
+
+      def build_shipment_acceptance_request(digest, options)
+        xml_request = XmlNode.new('ShipmentAcceptRequest') do |accept_request|
+          accept_request << XmlNode.new('Request') do |request|
+            request << XmlNode.new('RequestAction', 'ShipAccept')
+          end
+          accept_request << XmlNode.new('ShipmentDigest', digest)
+        end
+        xml_request.to_s
+      end
+
+      def build_void_shipment_request(identification_number, tracking_numbers = [], options = {})
+        xml_request = XmlNode.new('VoidShipmentRequest') do |void_request|
+          void_request << XmlNode.new('Request') do |request|
+            request << XmlNode.new('RequestAction', 'Void')
+            request << XmlNode.new('RequestOption', '1')
+          end
+
+          if tracking_numbers.blank?
+            void_request << XmlNode.new('ShipmentIdentificationNumber', identification_number)
+          else
+            void_request << XmlNode.new('ExpandedVoidShipment') do |expanded_void_shipment|
+              expanded_void_shipment << XmlNode.new('ShipmentIdentificationNumber', identification_number)
+              tracking_numbers.each do |tracking_number|
+                expanded_void_shipment << XmlNode.new('TrackingNumber', tracking_number)
+              end
+            end
+          end
+        end
+        xml_request.to_s
+      end
+
       protected
       
       def upsified_location(location)
@@ -289,7 +417,103 @@ module ActiveMerchant
         end
         RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
       end
-      
+
+      def parse_shipment_confirm_response(response, options = {})
+        xml = REXML::Document.new(response)
+        success = response_success?(xml)
+        message = response_message(xml)
+
+        if success
+          root_node = xml.elements['ShipmentConfirmResponse']
+          identification_number = root_node.get_text('ShipmentIdentificationNumber').to_s
+          total_price = root_node.get_text('TotalCharges/MonetaryValue').to_s.to_f
+          currency = root_node.get_text('TotalCharges/CurrencyCode').to_s
+          digest = root_node.get_text('ShipmentDigest').to_s
+        end
+
+        ShipmentConfirmResponse.new(success, message, Hash.from_xml(response).values.first,
+                                    :xml => response,
+                                    :request => last_request,
+                                    :identification_number => identification_number,
+                                    :total_price => total_price,
+                                    :currency => currency,
+                                    :digest => digest
+        )
+      end
+
+      def parse_shipment_accept_response(response, options = {})
+        xml = REXML::Document.new(response)
+        success = response_success?(xml)
+        message = response_message(xml)
+
+        if success
+          @shipment_packages = []
+          xml.elements.each('/*/*/PackageResults') do |package_result|
+            tracking_number = package_result.get_text('TrackingNumber').to_s
+            service_option_charges = package_result.get_text('ServiceOptionsCharges/MonetaryValue').to_s.to_f
+            service_option_charges_currency = package_result.get_text('ServiceOptionsCharges/CurrencyCode').to_s
+            label_image_format = package_result.get_text('LabelImage/LabelImageFormat/Code').to_s
+            graphic_image = package_result.get_text('LabelImage/GraphicImage').to_s
+            html_image = package_result.get_text('LabelImage/HTMLImage').to_s
+            @shipment_packages << ShipmentPackage.new(tracking_number, label_image_format, graphic_image, html_image, {:service_option_charges => service_option_charges, :currency_code => service_option_charges_currency})
+          end
+
+          root_node = xml.elements['ShipmentAcceptResponse/ShipmentResults']
+          identification_number = root_node.get_text('ShipmentIdentificationNumber').to_s
+          shipment_charges = root_node.get_text('ShipmentCharges/TotalCharges/MonetaryValue').to_s.to_f
+          currency_code = root_node.get_text('ShipmentCharges/TotalCharges/CurrencyCode').to_s
+          billing_weight = root_node.get_text('BillingWeight/Weight').to_s.to_f
+          weight_unit = root_node.get_text('BillingWeight/UnitOfMeasurement/Code').to_s
+          high_value_report_node = root_node.elements['ControlLogReceipt']
+
+          if high_value_report_node
+            high_value_report_image = high_value_report_node.get_text('GraphicImage').to_s
+            high_value_report_image_format = high_value_report_node.get_text('ImageFormat/Code').to_s
+          end
+        end
+
+        ShipmentAcceptResponse.new(success, message, Hash.from_xml(response).values.first,
+                                   :xml => response,
+                                   :request => last_request,
+                                   :identification_number => identification_number,
+                                   :shipment_charges => shipment_charges,
+                                   :currency_code => currency_code,
+                                   :billing_weight => billing_weight,
+                                   :weight_unit => weight_unit,
+                                   :high_value_report_image => high_value_report_image,
+                                   :high_value_report_image_format => high_value_report_image_format,
+                                   :shipment_packages => @shipment_packages
+        )
+      end
+
+      def parse_void_response(response, options = {})
+        xml = REXML::Document.new(response)
+        success = response_success?(xml)
+        message = response_message(xml)
+
+        if success
+          @package_level_results = []
+          xml.elements.each('/*/PackageLevelResults') do |package_level_result|
+            tracking_number = package_level_result.get_text('TrackingNumber').to_s
+            status_code = package_level_result.get_text('StatusCode').to_s.to_f
+            description = package_level_result.get_text('Description').to_s
+            @package_level_results << VoidResult.new(tracking_number, status_code, description)
+          end
+
+          status_node = xml.elements['VoidShipmentResponse/Status']
+          status_type = status_node.get_text('StatusType/Code').to_s
+          status_code = status_node.get_text('StatusCode/Code').to_s
+        end
+
+        VoidShipmentResponse.new(success, message, Hash.from_xml(response).values.first,
+                                 :xml => response,
+                                 :request => last_request,
+                                 :package_level_results => @package_level_results,
+                                 :status_type => status_type,
+                                 :status_code => status_code
+        )
+      end
+
       def parse_tracking_response(response, options={})
         xml = REXML::Document.new(response)
         success = response_success?(xml)
