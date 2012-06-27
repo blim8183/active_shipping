@@ -599,7 +599,7 @@ module ActiveMerchant
             province = address.get_text('PoliticalDivision1').to_s
             postal_code = address.get_text('PostcodePrimaryLow').to_s
             country = address.get_text('CountryCode').to_s
-            @addresses < Location.new(:address1 => address1,
+            @addresses << Location.new(:address1 => address1,
                                       :address2 => address2,
                                       :city => city,
                                       :province => province,
