@@ -1,6 +1,6 @@
 module ActiveMerchant #:nodoc:
   module Shipping #:nodoc:
-    class Address
+    class UPSAddress
 
       attr_reader :address1
       attr_reader :address2
