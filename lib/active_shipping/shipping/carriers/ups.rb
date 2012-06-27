@@ -17,7 +17,8 @@ module ActiveMerchant
         :track => 'ups.app/xml/Track',
         :shipment_confirm => 'ups.app/xml/ShipConfirm',
         :shipment_accept => 'ups.app/xml/ShipAccept',
-       	:void => 'ups.app/xml/Void'
+       	:void => 'ups.app/xml/Void',
+        :address_validation => 'ups.app/xml/XAV'
       }
       
       PICKUP_CODES = HashWithIndifferentAccess.new({
@@ -254,6 +255,24 @@ module ActiveMerchant
         xml_request.to_s
       end
 
+      def build_validate_address_request(address, options)
+        xml_request = XmlNode.new('AddressValidationRequest') do |address_request|
+          address_request << XmlNode.new('Request') do |request|
+            request << XmlNode.new('RequestAction', 'XAV')
+          end
+
+          address_request << XmlNode.new('AddressKeyFormat') do |request|
+            request << XmlNode.new("AddressLine", address[:address_line_1])
+            request << XmlNode.new("AddressLine", address[:address_line_2])
+            request << XmlNode.new("PoliticalDivision2", address[:city])
+            request << XmlNode.new("PoliticalDivision1", address[:state])
+            request << XmlNode.new("PostcodePrimaryLow", address[:zip])
+            request << XmlNode.new("CountryCode", address[:country])
+          end
+        end
+        xml_request.to_s
+      end
+
       def shipment_confirmation_request(carrier_service, packages, label_specification, options)
         options = @options.merge(options)
         packages = Array(packages)
@@ -278,6 +297,14 @@ module ActiveMerchant
         void_request = "<?xml version='1.0' encoding='UTF-8' ?>" + build_void_shipment_request(identification_number, tracking_numbers, options)
         response = commit(:void, save_request(access_request + void_request), (options[:test] || false))
         parse_void_response(response, options)
+      end
+
+      def validate_address(address, options = {})
+        options = @options.merge(options)
+        access_request = "<?xml version='1.0' ?>" + build_access_request
+        validation_request = "<?xml version='1.0' encoding='UTF-8' ?>" + build_validate_address_request(address, options)
+        response = commit(:address_validation, save_request(access_request + validation_request), (options[:test] || false))
+        parse_address_validation_response(response, options)
       end
 
       protected
@@ -552,6 +579,20 @@ module ActiveMerchant
                                  :status_code => status_code
         )
       end
+
+      def parse_address_validation_response(response, options={})
+        xml = REXML::Document.new(response)
+        success = response_success?(xml)
+        message = response_message(xml)
+
+        puts xml
+        puts success
+        puts message
+        if success
+        end
+        #AddressValidationResponse.new(success, message, Hash.from_xml(response).values.first)
+      end
+
 
       def parse_tracking_response(response, options={})
         xml = REXML::Document.new(response)
