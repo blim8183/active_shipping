@@ -590,8 +590,9 @@ module ActiveMerchant
         if success
           @addresses = []
           xml.elements.each('/*/AddressKeyFormat') do |address|
-            address1 = address.get_text('AddressLine').to_s
-            address2 = address.get_text('AddressLine').to_s
+            addresses_lines = address.get_elements('AddressLine')
+            address1 = addresses_lines.first.text
+            address2 = addresses_lines.last.text
             city = address.get_text('PoliticalDivision2').to_s
             province = address.get_text('PoliticalDivision1').to_s
             postal_code = address.get_text('PostcodePrimaryLow').to_s

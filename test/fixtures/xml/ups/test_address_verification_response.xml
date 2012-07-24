@@ -7,15 +7,6 @@
   </Response>
   <AmbiguousAddressIndicator/>
   <AddressKeyFormat>
-    <AddressLine>1100-1152 BROADWAY</AddressLine>
-    <Region>ALAMEDA CA 94501-5306</Region>
-    <PoliticalDivision2>ALAMEDA</PoliticalDivision2>
-    <PoliticalDivision1>CA</PoliticalDivision1>
-    <PostcodePrimaryLow>94501</PostcodePrimaryLow>
-    <PostcodeExtendedLow>5306</PostcodeExtendedLow>
-    <CountryCode>US</CountryCode>
-  </AddressKeyFormat>
-  <AddressKeyFormat>
     <AddressLine>1118 BROADWAY</AddressLine>
     <AddressLine>APT A-D</AddressLine>
     <Region>ALAMEDA CA 94501-5336</Region>
@@ -23,6 +14,15 @@
     <PoliticalDivision1>CA</PoliticalDivision1>
     <PostcodePrimaryLow>94501</PostcodePrimaryLow>
     <PostcodeExtendedLow>5336</PostcodeExtendedLow>
+    <CountryCode>US</CountryCode>
+  </AddressKeyFormat>
+  <AddressKeyFormat>
+    <AddressLine>1100-1152 BROADWAY</AddressLine>
+    <Region>ALAMEDA CA 94501-5306</Region>
+    <PoliticalDivision2>ALAMEDA</PoliticalDivision2>
+    <PoliticalDivision1>CA</PoliticalDivision1>
+    <PostcodePrimaryLow>94501</PostcodePrimaryLow>
+    <PostcodeExtendedLow>5306</PostcodeExtendedLow>
     <CountryCode>US</CountryCode>
   </AddressKeyFormat>
   <AddressKeyFormat>
