@@ -605,16 +605,15 @@ module ActiveMerchant
                                       :province => province,
                                       :postal_code => postal_code,
                                       :country => country)
+
           end
         end
-
         AddressValidationResponse.new(success, message, Hash.from_xml(response).values.first,
                                       :xml => response,
                                       :request => last_request,
                                       :addresses => @addresses
         )
       end
-
 
       def parse_tracking_response(response, options={})
         xml = REXML::Document.new(response)

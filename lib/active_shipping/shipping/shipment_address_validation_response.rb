@@ -13,8 +13,6 @@ module ActiveMerchant
         options[:addresses].each{ |address| @addresses << address } unless options[:address].blank?
         super
       end
-
     end
-
   end
 end

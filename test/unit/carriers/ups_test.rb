@@ -1,4 +1,4 @@
-require 'test_helper'
+require '../../test_helper'
 
 class UPSTest < Test::Unit::TestCase
   
@@ -78,7 +78,23 @@ class UPSTest < Test::Unit::TestCase
     
     assert_equal date_test, response.rates.map(&:delivery_date)
   end
-  
+
+  def test_address_verification
+    mock_response = xml_fixture('ups/test_address_verification_response')
+    @carrier.expects(:commit).returns(mock_response)
+
+    address = {
+            :address_line_1 => "788 Harrison Street",
+            :address_line_2 => "APT 123",
+            :city => "San Francisco",
+            :state => "CA",
+            :zip => "94107",
+            :country => "US"
+    }
+
+    response = @carrier.validate_address(address)
+  end
+
   def test_maximum_weight
     assert Package.new(150 * 16, [5,5,5], :units => :imperial).mass == @carrier.maximum_weight
     assert Package.new((150 * 16) + 0.01, [5,5,5], :units => :imperial).mass > @carrier.maximum_weight
