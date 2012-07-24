@@ -587,9 +587,12 @@ module ActiveMerchant
         success = response_success?(xml)
         message = response_message(xml)
 
-        puts xml
-        puts success
-        puts message
+        Rails.logger.error "xml::"
+        Rails.logger.error xml
+        Rails.logger.error "success::"
+        Rails.logger.error success
+        Rails.logger.error "message::"
+        Rails.logger.error message
         if success
           @addresses = []
           xml.elements.each('/*/AddressKeyFormat') do |address|
