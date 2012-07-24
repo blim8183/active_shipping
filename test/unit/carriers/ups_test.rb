@@ -94,8 +94,11 @@ class UPSTest < Test::Unit::TestCase
 
     response = @carrier.validate_address(address)
     assert_equal response.addresses.length, 4
-    assert_equal response.addresses.first.address1, "1100-1152 BROADWAY"
+    assert_equal response.addresses.first.address1, "1118 BROADWAY"
+    assert_equal response.addresses.first.address2, "APT A-D"
+    assert_equal response.addresses.first.city, "ALAMEDA"
     assert_equal response.addresses.first.province, "CA"
+    assert_equal response.addresses.first.postal_code, "94501"
   end
 
   def test_maximum_weight
