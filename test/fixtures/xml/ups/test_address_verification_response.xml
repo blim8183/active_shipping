@@ -26,15 +26,6 @@
     <CountryCode>US</CountryCode>
   </AddressKeyFormat>
   <AddressKeyFormat>
-    <AddressLine>1118 BROADWAY</AddressLine>
-    <Region>ALAMEDA CA 94501-7756</Region>
-    <PoliticalDivision2>ALAMEDA</PoliticalDivision2>
-    <PoliticalDivision1>CA</PoliticalDivision1>
-    <PostcodePrimaryLow>94501</PostcodePrimaryLow>
-    <PostcodeExtendedLow>7756</PostcodeExtendedLow>
-    <CountryCode>US</CountryCode>
-  </AddressKeyFormat>
-  <AddressKeyFormat>
     <AddressLine>1139 BROADWAY</AddressLine>
     <AddressLine>APT A-C</AddressLine>
     <Region>ALAMEDA CA 94501-5380</Region>
@@ -42,6 +33,15 @@
     <PoliticalDivision1>CA</PoliticalDivision1>
     <PostcodePrimaryLow>94501</PostcodePrimaryLow>
     <PostcodeExtendedLow>5380</PostcodeExtendedLow>
+    <CountryCode>US</CountryCode>
+  </AddressKeyFormat>
+  <AddressKeyFormat>
+    <AddressLine>1118 BROADWAY</AddressLine>
+    <Region>ALAMEDA CA 94501-7756</Region>
+    <PoliticalDivision2>ALAMEDA</PoliticalDivision2>
+    <PoliticalDivision1>CA</PoliticalDivision1>
+    <PostcodePrimaryLow>94501</PostcodePrimaryLow>
+    <PostcodeExtendedLow>7756</PostcodeExtendedLow>
     <CountryCode>US</CountryCode>
   </AddressKeyFormat>
 </AddressValidationResponse>

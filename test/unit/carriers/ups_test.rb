@@ -99,6 +99,9 @@ class UPSTest < Test::Unit::TestCase
     assert_equal response.addresses.first.city, "ALAMEDA"
     assert_equal response.addresses.first.province, "CA"
     assert_equal response.addresses.first.postal_code, "94501"
+
+    assert_equal response.addresses.last.address1, "1118 BROADWAY"
+    assert_equal response.addresses.last.address2, ""
   end
 
   def test_maximum_weight
