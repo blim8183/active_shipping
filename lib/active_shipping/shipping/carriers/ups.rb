@@ -591,8 +591,11 @@ module ActiveMerchant
           @addresses = []
           xml.elements.each('/*/AddressKeyFormat') do |address|
             addresses_lines = address.get_elements('AddressLine')
-            address1 = addresses_lines.first.text
-            address2 = addresses_lines.last.text
+            address_first = addresses_lines.slice!(0)
+            address_second = addresses_lines.slice!(0)
+
+            address1 = address_first.text if address_first
+            address_second ? address2 = address_second.text : address2 = ""
             city = address.get_text('PoliticalDivision2').to_s
             province = address.get_text('PoliticalDivision1').to_s
             postal_code = address.get_text('PostcodePrimaryLow').to_s
@@ -603,7 +606,6 @@ module ActiveMerchant
                                       :province => province,
                                       :postal_code => postal_code,
                                       :country => country)
-
           end
         end
         AddressValidationResponse.new(success, message, Hash.from_xml(response),
