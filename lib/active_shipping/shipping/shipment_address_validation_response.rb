@@ -10,7 +10,7 @@ module ActiveMerchant
         @addresses = []
         @status_type = options[:status_type]
         @status_code = options[:status_code]
-        options[:addresses].each{ |address| @addresses << address } unless options[:address].blank?
+        options[:addresses].each{ |address| @addresses << address } unless options[:addresses].blank?
         super
       end
     end
