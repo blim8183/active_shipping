@@ -587,12 +587,6 @@ module ActiveMerchant
         success = response_success?(xml)
         message = response_message(xml)
 
-        Rails.logger.error "xml::"
-        Rails.logger.error xml
-        Rails.logger.error "success::"
-        Rails.logger.error success
-        Rails.logger.error "message::"
-        Rails.logger.error message
         if success
           @addresses = []
           xml.elements.each('/*/AddressKeyFormat') do |address|
@@ -611,7 +605,7 @@ module ActiveMerchant
 
           end
         end
-        AddressValidationResponse.new(success, message, Hash.from_xml(response).values.first,
+        AddressValidationResponse.new(success, message, Hash.from_xml(response),
                                       :xml => response,
                                       :request => last_request,
                                       :addresses => @addresses
