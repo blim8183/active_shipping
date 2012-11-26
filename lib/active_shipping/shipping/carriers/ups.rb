@@ -154,7 +154,7 @@ module ActiveMerchant
               end
             end
             shipment << XmlNode.new('ShipTo') do |shipto|
-              shipto << XmlNode.new("CompanyName", options[:destination][:company_name])
+              shipto << XmlNode.new("CompanyName", options[:destination][:company_name]) unless options[:destination][:attention_name].blank?
               shipto << XmlNode.new("AttentionName", options[:destination][:attention_name]) unless options[:destination][:attention_name].blank?
               shipto << XmlNode.new("PhoneNumber", options[:destination][:phone]) unless options[:destination][:phone].blank?
               shipto << XmlNode.new("Address") do |address|
