@@ -143,28 +143,28 @@ module ActiveMerchant
               shipper << XmlNode.new("ShipperNumber", options[:origin][:origin_number])
               shipper << XmlNode.new("PhoneNumber", options[:origin][:phone]) unless options[:origin][:phone].blank?
               shipper << XmlNode.new("Address") do |address|
-                address << XmlNode.new("AddressLine1", options[:origin][:address_line1]) unless options[:origin][:address_line1].blank?
+                address << XmlNode.new("AddressLine1", options[:origin][:address_line1])
                 address << XmlNode.new("AddressLine2", options[:origin][:address_line2]) unless options[:origin][:address_line2].blank?
                 address << XmlNode.new("AddressLine3", options[:origin][:address_line3]) unless options[:origin][:address_line3].blank?
-                address << XmlNode.new("City", options[:origin][:city]) unless options[:origin][:city].blank?
+                address << XmlNode.new("City", options[:origin][:city])
                 address << XmlNode.new("StateProvinceCode", options[:origin][:state]) unless options[:origin][:state].blank?
                 address << XmlNode.new("PostalCode", options[:origin][:zip]) unless options[:origin][:zip].blank?
-                address << XmlNode.new("CountryCode", options[:origin][:country]) unless options[:origin][:country].blank?
+                address << XmlNode.new("CountryCode", options[:origin][:country])
                 address << XmlNode.new("ResidentialAddressIndicator", options[:origin][:residential_indicator]) unless options[:origin][:residential_indicator].blank?
               end
             end
             shipment << XmlNode.new('ShipTo') do |shipto|
-              shipto << XmlNode.new("CompanyName", options[:destination][:company_name]) unless options[:destination][:company_name].blank?
+              shipto << XmlNode.new("CompanyName", options[:destination][:company_name])
               shipto << XmlNode.new("AttentionName", options[:destination][:attention_name]) unless options[:destination][:attention_name].blank?
               shipto << XmlNode.new("PhoneNumber", options[:destination][:phone]) unless options[:destination][:phone].blank?
               shipto << XmlNode.new("Address") do |address|
-                address << XmlNode.new("AddressLine1", options[:destination][:address_line1]) unless options[:destination][:address_line1].blank?
+                address << XmlNode.new("AddressLine1", options[:destination][:address_line1])
                 address << XmlNode.new("AddressLine2", options[:destination][:address_line2]) unless options[:destination][:address_line2].blank?
                 address << XmlNode.new("AddressLine3", options[:destination][:address_line3]) unless options[:destination][:address_line3].blank?
-                address << XmlNode.new("City", options[:destination][:city]) unless options[:destination][:city].blank?
+                address << XmlNode.new("City", options[:destination][:city])
                 address << XmlNode.new("StateProvinceCode", options[:destination][:state]) unless options[:destination][:state].blank?
                 address << XmlNode.new("PostalCode", options[:destination][:zip]) unless options[:destination][:zip].blank?
-                address << XmlNode.new("CountryCode", options[:destination][:country]) unless options[:destination][:country].blank?
+                address << XmlNode.new("CountryCode", options[:destination][:country])
                 address << XmlNode.new("ResidentialAddressIndicator", options[:destination][:residential_indicator]) unless options[:destination][:residential_indicator].blank?
               end
             end
