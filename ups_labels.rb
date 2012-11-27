@@ -6,10 +6,10 @@
 #class UpsLabelTest
 #  include ActiveMerchant::Shipping
 #
-#  UPS_ORIGIN_NUMBER = "69298Y"
-#  UPS_LOGIN = 'vauntemanager'
-#  UPS_PASSWORD = 'V@unteit'
-#  UPS_KEY = '4C9AC22ED7DE2443'
+#  UPS_ORIGIN_NUMBER = ""
+#  UPS_LOGIN = ''
+#  UPS_PASSWORD = ''
+#  UPS_KEY = ''
 #
 #  TESTING = true
 #  SAVE_LABEL_LOCATION = "/Users/andy/Downloads/ups"
