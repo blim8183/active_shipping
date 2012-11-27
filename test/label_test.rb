@@ -1,3 +1,5 @@
+$:.unshift(File.dirname(__FILE__) + '/../lib')
+
 require 'base64'
 require 'fileutils'
 require 'tempfile'
@@ -34,14 +36,11 @@ class UpsLabelTest
   # "85" => "UPS Today Express",
   # "86" => "UPS Today Express Saver"
 
-
   def initialize
     @ups = UPS.new(:login => UPS_LOGIN, :password => UPS_PASSWORD, :key => UPS_KEY, :test => true)
   end
 
   #end method initialize
-
-
   def run_tests
     #UPS::DEFAULT_SERVICES.keys.sort.each do |code|
     ["03"].each do |code|
