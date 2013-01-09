@@ -4,7 +4,7 @@ module ActiveMerchant #:nodoc:
       include Quantified
       
       cattr_accessor :default_options
-      attr_reader :options, :value, :currency
+      attr_reader :options, :value, :currency, :description
 
       # Package.new(100, [10, 20, 30], :units => :metric)
       # Package.new(Mass.new(100, :grams), [10, 20, 30].map {|m| Length.new(m, :centimetres)})
@@ -30,6 +30,9 @@ module ActiveMerchant #:nodoc:
         end
         
         @value = Package.cents_from(options[:value])
+        if description = options[:description]
+          @description = description
+        end
         @currency = options[:currency] || (options[:value].currency if options[:value].respond_to?(:currency))
         @cylinder = (options[:cylinder] || options[:tube]) ? true : false
         @gift = options[:gift] ? true : false
