@@ -181,6 +181,7 @@ module ActiveMerchant
             end
             packages.each do |package|
               imperial = ['US', 'LR', 'MM'].include?(options[:origin][:country])
+              shipment << XmlNode.new('Description', package.description) if package.description
               shipment << XmlNode.new("Package") do |package_node|
                 package_node << XmlNode.new("PackagingType") do |packaging_type|
                   packaging_type << XmlNode.new("Code", '02')
