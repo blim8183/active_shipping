@@ -8,10 +8,10 @@ require 'active_shipping'
 class UpsLabelTest
   include ActiveMerchant::Shipping
 
-  UPS_ORIGIN_NUMBER = "xxxxx"
-  UPS_LOGIN = 'xxxxx'
-  UPS_PASSWORD = 'xxxxx'
-  UPS_KEY = 'xxxxx'
+  UPS_ORIGIN_NUMBER = "xxxx"
+  UPS_LOGIN = 'xxxx'
+  UPS_PASSWORD = 'xxxx'
+  UPS_KEY = 'xxxx'
 
   TESTING = true
   SAVE_LABEL_LOCATION = "#{Dir.home}/Downloads/ups"
@@ -69,7 +69,7 @@ class UpsLabelTest
   def get_packages
     #please refer Package class (lib/shipping/package.rb) for more info
     [
-        Package.new((3 * 16), [12, 12, 12], :units => :imperial, :description => "Earrings")
+        Package.new((3 * 16), [12, 12, 12], :units => :imperial, :description => "Earrings", :value => "149.99")
     ]
   end
 
@@ -90,15 +90,15 @@ class UpsLabelTest
   def get_options
     #create a options hash containing origin, destination. For test environment pass :test => true
     origin = {
-        :address_line1 => "788 Harrison Street",
-        :address_line2 => "Apt 417",
+        :address_line1 => "153 W 27th Street, Ste 203",
+        # :address_line2 => "", address_line2 is not printed for origin addresses
         :country => 'US',
-        :state => 'CA',
-        :city => 'San fsdfs',
-        :zip => '91245',
-        :phone => "(818) 321-8833",
-        :name => "Andy Shin",
-        :attention_name => "Andy Shin",
+        :state => 'NY',
+        :city => 'New York',
+        :zip => '10001',
+        :phone => "212-206-6942",
+        :name => "Vaunte Headquarters",
+        :attention_name => "Vaunte Headquarters",
         :origin_number => UPS_ORIGIN_NUMBER
     }
 
