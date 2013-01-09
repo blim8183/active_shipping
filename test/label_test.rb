@@ -8,13 +8,13 @@ require 'active_shipping'
 class UpsLabelTest
   include ActiveMerchant::Shipping
 
-  UPS_ORIGIN_NUMBER = "xxx"
-  UPS_LOGIN = 'xxx'
-  UPS_PASSWORD = 'xxx'
-  UPS_KEY = 'xxx'
+  UPS_ORIGIN_NUMBER = "xxxxx"
+  UPS_LOGIN = 'xxxxx'
+  UPS_PASSWORD = 'xxxxx'
+  UPS_KEY = 'xxxxx'
 
   TESTING = true
-  SAVE_LABEL_LOCATION = "/Users/andy/Downloads/ups"
+  SAVE_LABEL_LOCATION = "#{Dir.home}/Downloads/ups"
 
   # services located in UPS::DEFAULT_SERVICES
   #
@@ -42,26 +42,25 @@ class UpsLabelTest
 
   #end method initialize
   def run_tests
-    #UPS::DEFAULT_SERVICES.keys.sort.each do |code|
-    ["03"].each do |code|
-      begin
-        trk_num = run_test_for_service(code)
-        puts "Generated label for: #{UPS::DEFAULT_SERVICES[code]} => #{trk_num}"
-        puts "validating address"
-
-        address = { :address_line_1 => "18740 Lisburn Pl",
+    [:domestic, :international].each do |destination_type|
+      puts "\nRUNNING TESTS FOR #{destination_type.to_s.upcase} DESTINATION\n\n"
+      UPS::DEFAULT_SERVICES.keys.sort.each do |code|
+        begin
+          trk_num = run_test_for_service(code, destination_type)
+          puts "Generated label for: #{UPS::DEFAULT_SERVICES[code]} => #{trk_num}"
+        rescue => e
+          puts "ERROR GENERATING: #{UPS::DEFAULT_SERVICES[code]} => #{e.message}"
+        end
+      end
+    end
+    puts "\nTESTING ADDRESS VALIDATION\n\n"
+    address = { :address_line_1 => "18740 Lisburn Pl",
                 :city => "Northridge",
                 :state => "CA",
                 :zip => "984134",
                 :country => "US"
-        }
-
-        @ups.validate_address(address)
-
-      #rescue => e
-      #  puts "ERROR GENERATING: #{UPS::DEFAULT_SERVICES[code]} => #{e.message}"
-      end
-    end
+    }
+    @ups.validate_address(address)
   end
 
   #end method run_tests
@@ -70,7 +69,7 @@ class UpsLabelTest
   def get_packages
     #please refer Package class (lib/shipping/package.rb) for more info
     [
-            Package.new((3 * 16), [12, 12, 12], :units => :imperial)
+        Package.new((3 * 16), [12, 12, 12], :units => :imperial, :description => "Earrings")
     ]
   end
 
@@ -90,32 +89,49 @@ class UpsLabelTest
 
   def get_options
     #create a options hash containing origin, destination. For test environment pass :test => true
-    options = {
-            :origin => {
-                    :address_line1 => "788 Harrison Street",
-                    :address_line2 => "Apt 417",
-                    :country => 'US',
-                    :state => 'CA',
-                    :city => 'San fsdfs',
-                    :zip => '91245',
-                    :phone => "(818) 321-8833",
-                    :name => "Andy Shin",
-                    :attention_name => "Andy Shin",
-                    :origin_number => UPS_ORIGIN_NUMBER
-            },
-            :destination => {
-                    :company_name => "Kay Shin",
-                    :attention_name => "Kay Shin",
-                    :phone => "(818) 366-6001",
-                    :address_line1 => "18740 Lisburn Place",
-                    :country => 'US',
-                    :state => 'CA',
-                    :city => 'Northridge',
-                    :zip => '91326'
-            },
-            :test => TESTING
+    origin = {
+        :address_line1 => "788 Harrison Street",
+        :address_line2 => "Apt 417",
+        :country => 'US',
+        :state => 'CA',
+        :city => 'San fsdfs',
+        :zip => '91245',
+        :phone => "(818) 321-8833",
+        :name => "Andy Shin",
+        :attention_name => "Andy Shin",
+        :origin_number => UPS_ORIGIN_NUMBER
     }
 
+    options = {
+        :domestic => {
+            :origin => origin,
+            :destination => {
+                :company_name => "Kay Shin",
+                :attention_name => "Kay Shin",
+                :phone => "(818) 366-6001",
+                :address_line1 => "18740 Lisburn Place",
+                :country => 'US',
+                :state => 'CA',
+                :city => 'Northridge',
+                :zip => '91326'
+            },
+            :test => TESTING
+        },
+        :international => {
+            :origin => origin,
+            :destination => {
+                :company_name => "David Beckham",
+                :attention_name => "David Beckham",
+                :phone => "+555555555555",
+                :address_line1 => "47 KENDAL Street",
+                :country => 'GB',
+                :state => 'UK',
+                :city => 'LONDON',
+                :zip => 'W2 2BU'
+            },
+            :test => TESTING
+        }
+    }
   end
 
   #end method get_options
@@ -137,14 +153,18 @@ class UpsLabelTest
   #end method create_shipment_request(confirm_response)
 
 
-  def run_test_for_service(carrier_service)
+  def run_test_for_service(carrier_service, destination_type=:domestic)
     packages = get_packages
     label_specification = get_label_specification
     options = get_options
-    confirm_response = create_confirm_response(carrier_service, packages, label_specification, options)
-    accept_response = create_shipment_request(confirm_response)
-    out = []
 
+    confirm_response = create_confirm_response(carrier_service, packages, label_specification, options[destination_type])
+    accept_response = create_shipment_request(confirm_response)
+
+    return get_label_and_other_info(accept_response)
+  end #end run_test_for_service
+
+  def get_label_and_other_info(accept_response)
     #To get label and other info of each package of the above shipment
     accept_response.shipment_packages.each do |package|
 
@@ -159,7 +179,6 @@ class UpsLabelTest
 
       #gives you the tracking number of package
       tracking_number = package.tracking_number
-
 
       #write out the GRAPHIC file
       label_tmp_file = Tempfile.new("shipping_label")
@@ -183,13 +202,9 @@ class UpsLabelTest
       hf.write File.new(html_tmp_file.path).read
       hf.close
 
-      out << tracking_number
-
-    end #end shipment_packages.each
-
-    return out
-  end #end run_test_for_service
-
+      return tracking_number
+    end #end accept_response.shipment_packages.each
+  end #end get_label_and_other_info
 end #end class
 
 
