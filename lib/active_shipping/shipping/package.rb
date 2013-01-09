@@ -29,7 +29,7 @@ module ActiveMerchant #:nodoc:
           process_dimensions
         end
         
-        @value = Package.cents_from(options[:value])
+        @value = options[:value].to_i # UPS accepts the value as a dollar amount with no cents
         if description = options[:description]
           @description = description
         end

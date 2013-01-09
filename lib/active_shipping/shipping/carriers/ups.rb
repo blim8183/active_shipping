@@ -207,7 +207,7 @@ module ActiveMerchant
                     package_service_options << XmlNode.new("InsuredValue") do |insured_value|
                       currency = package.currency.blank? ? "USD" : package.currency.to_s
                       insured_value << XmlNode.new("CurrencyCode", currency)
-                      insured_value << XmlNode.new("MonetaryValue", package.value.to_i.to_s)
+                      insured_value << XmlNode.new("MonetaryValue", package.value.to_s)
                     end
                   end
                 end
