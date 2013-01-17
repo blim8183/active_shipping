@@ -29,7 +29,7 @@ module ActiveMerchant #:nodoc:
           process_dimensions
         end
         
-        @value = options[:value].to_i
+        @value = options[:value]
         if description = options[:description]
           @description = description
         end
