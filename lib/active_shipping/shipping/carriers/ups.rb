@@ -402,6 +402,16 @@ module ActiveMerchant
                   package_weight << XmlNode.new("Weight", [value, 0.1].max)
                 end
 
+                unless package.value.blank?
+                  package_node << XmlNode.new("PackageServiceOptions") do |package_service_options|
+                    package_service_options << XmlNode.new("InsuredValue") do |insured_value|
+                      currency = package.currency.blank? ? "USD" : package.currency.to_s
+                      insured_value << XmlNode.new("CurrencyCode", currency)
+                      insured_value << XmlNode.new("MonetaryValue", package.value.to_s)
+                    end
+                  end
+                end
+
                 # not implemented:  * Shipment/Package/LargePackageIndicator element
                 #                   * Shipment/Package/ReferenceNumber element
                 #                   * Shipment/Package/PackageServiceOptions element
