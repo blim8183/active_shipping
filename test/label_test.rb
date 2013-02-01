@@ -46,7 +46,7 @@ class UpsLabelTest
       puts "\nRUNNING TESTS FOR #{destination_type.to_s.upcase} DESTINATION\n\n"
       UPS::DEFAULT_SERVICES.keys.sort.each do |code|
         begin
-          trk_num = run_test_for_service(code, destination_type)
+          trk_num = run_test_for_service(code, get_options, destination_type)
           puts "Generated label for: #{UPS::DEFAULT_SERVICES[code]} => #{trk_num}"
         rescue => e
           puts "ERROR GENERATING: #{UPS::DEFAULT_SERVICES[code]} => #{e.message}"
@@ -54,13 +54,48 @@ class UpsLabelTest
       end
     end
     puts "\nTESTING ADDRESS VALIDATION\n\n"
-    address = { :address_line_1 => "18740 Lisburn Pl",
-                :city => "Northridge",
-                :state => "CA",
-                :zip => "984134",
-                :country => "US"
+    address = {:address_line_1 => "18740 Lisburn Pl",
+               :city => "Northridge",
+               :state => "CA",
+               :zip => "984134",
+               :country => "US"
     }
     @ups.validate_address(address)
+  end
+
+  def create_ups_ground_label
+    options = {
+        :domestic => {
+            :origin => {
+                :address_line1 => "153 W 27th Street, Ste 203",
+                # :address_line2 => "", address_line2 is not printed for origin addresses
+                :country => 'US',
+                :state => 'NY',
+                :city => 'New York',
+                :zip => '10001',
+                :phone => "212-206-6942",
+                :name => "Vaunte Headquarters",
+                :attention_name => "Vaunte Headquarters",
+                :origin_number => UPS_ORIGIN_NUMBER
+            },
+            :destination => {
+                :company_name => "Kay Shin",
+                :attention_name => "Kay Shin",
+                :phone => "(818) 366-6001",
+                :address_line1 => "18740 Lisburn Place",
+                :country => 'US',
+                :state => 'CA',
+                :city => 'Northridge',
+                :zip => '91326'
+            },
+            :test => TESTING
+        }
+    }
+
+
+    code = "03"
+    trk_num = run_test_for_service(code, options, :domestic)
+    puts "Generated label for: #{UPS::DEFAULT_SERVICES[code]} => #{trk_num}"
   end
 
   #end method run_tests
@@ -153,16 +188,17 @@ class UpsLabelTest
   #end method create_shipment_request(confirm_response)
 
 
-  def run_test_for_service(carrier_service, destination_type=:domestic)
+  def run_test_for_service(carrier_service, options, destination_type=:domestic)
     packages = get_packages
     label_specification = get_label_specification
-    options = get_options
 
     confirm_response = create_confirm_response(carrier_service, packages, label_specification, options[destination_type])
     accept_response = create_shipment_request(confirm_response)
 
     return get_label_and_other_info(accept_response)
-  end #end run_test_for_service
+  end
+
+  #end run_test_for_service
 
   def get_label_and_other_info(accept_response)
     #To get label and other info of each package of the above shipment
@@ -209,4 +245,5 @@ end #end class
 
 
 test = UpsLabelTest.new
+#test.create_ups_ground_label
 test.run_tests # <== Now go check your folder
