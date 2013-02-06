@@ -67,26 +67,27 @@ class UpsLabelTest
     options = {
         :domestic => {
             :origin => {
-                :address_line1 => "153 W 27th Street, Ste 203",
-                # :address_line2 => "", address_line2 is not printed for origin addresses
-                :country => 'US',
-                :state => 'NY',
+                :name => "Krys Rosario",
+                :attention_name => "Krys Rosario",
+                :address_line1 => "255 W 127TH ST APT #7A",
+                #:address_line2 => "", address line does not show up when printed
                 :city => 'New York',
-                :zip => '10001',
-                :phone => "212-206-6942",
-                :name => "Vaunte Headquarters",
-                :attention_name => "Vaunte Headquarters",
+                :state => 'NY',
+                :zip => '10027',
+                :country => 'US',
+                :phone => "347-602-0869",
                 :origin_number => UPS_ORIGIN_NUMBER
             },
             :destination => {
-                :company_name => "Kay Shin",
-                :attention_name => "Kay Shin",
-                :phone => "(818) 366-6001",
-                :address_line1 => "18740 Lisburn Place",
+                :company_name => "Vaunte Headquarters",
+                :attention_name => "Vaunte Headquarters",
+                :address_line1 => "153 W 27TH STREET STE 203",
+                #:address_line2 => "", address line does not show up when printed
+                :city => 'NEW YORK',
+                :state => 'NY',
+                :zip => '10001',
                 :country => 'US',
-                :state => 'CA',
-                :city => 'Northridge',
-                :zip => '91326'
+                :phone => "212-206-6942"
             },
             :test => TESTING
         }
