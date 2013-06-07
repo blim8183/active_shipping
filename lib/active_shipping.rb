@@ -36,6 +36,7 @@ autoload :Quantified, 'vendor/quantified/lib/quantified'
 
 require 'net/https'
 require 'active_utils'
+require 'savon'
 
 require 'active_shipping/shipping/base'
 require 'active_shipping/shipping/response'
