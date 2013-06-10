@@ -10,13 +10,22 @@ module ActiveMerchant
           :denied_party_screening => '../lib/schema/ups_international_service/DeniedParty.wsdl'
       }
 
-      def build_soap_client
-        client = Savon.client(:wsdl => SCHEMA[:landed_cost],
-                              :namespaces => build_additional_namespaces,
-                              :soap_header => build_access_request)
+      def get_loading_cost(tariff_code, item_value, destination_country_code, destination_state_providence_code = nil)
+        client = build_soap_client
 
-        response = client.call(:process_lc_request, :message => build_landed_cost_request)
-        parse_landing_cost_response(response)
+        begin
+          response = client.call(:process_lc_request, :message => build_landed_cost_request(tariff_code, item_value, destination_country_code, destination_state_providence_code))
+          parse_landing_cost_response(response)
+        rescue Savon::SOAPFault => error
+          puts "Tariff Code = #{tariff_code}"
+          puts error
+        end
+      end
+
+      def build_soap_client
+        Savon.client(:wsdl => SCHEMA[:landed_cost],
+                     :namespaces => build_additional_namespaces,
+                     :soap_header => build_access_request)
       end
 
       def parse_landing_cost_response(response)
@@ -33,17 +42,17 @@ module ActiveMerchant
         {"xmlns:upss" => "http://www.ups.com/XMLSchema/XOLTWS/UPSS/v1.0"}
       end
 
-      def build_landed_cost_request
+      def build_landed_cost_request(tariff_code, item_value, destination_country_code, destination_state_providence_code = nil)
         {"lc:Request" => {"lc:RequestAction" => "LandedCost"},
          "lc:QueryRequest" => {"lc:SuppressQuestionIndicator" => "Y",
                                "lc:Shipment" => {"lc:OriginCountryCode" => "US",
-                                                 "lc:DestinationCountryCode" => "CA",
-                                                 "lc:DestinationStateProvinceCode" => "QC",
+                                                 "lc:DestinationCountryCode" => destination_country_code,
+                                                 "lc:DestinationStateProvinceCode" => destination_state_providence_code,
                                                  "lc:TransportationMode" => "1",
                                                  "lc:ResultCurrencyCode" => "USD",
-                                                 "lc:Product" => {"lc:TariffInfo" => {"lc:TariffCode" => "6207.19.0000"},
+                                                 "lc:Product" => {"lc:TariffInfo" => {"lc:TariffCode" => tariff_code},
                                                                   "lc:Quantity" => {"lc:Value" => "1"},
-                                                                  "lc:UnitPrice" => {"lc:MonetaryValue" => "300",
+                                                                  "lc:UnitPrice" => {"lc:MonetaryValue" => item_value,
                                                                                      "lc:CurrencyCode" => "USD"}}}}}
       end
     end
