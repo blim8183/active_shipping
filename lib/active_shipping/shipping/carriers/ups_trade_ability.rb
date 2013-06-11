@@ -13,13 +13,8 @@ module ActiveMerchant
       def get_loading_cost(tariff_code, item_value, destination_country_code, destination_state_providence_code = nil)
         client = build_soap_client
 
-        begin
-          response = client.call(:process_lc_request, :message => build_landed_cost_request(tariff_code, item_value, destination_country_code, destination_state_providence_code))
-          parse_landing_cost_response(response)
-        rescue Savon::SOAPFault => error
-          puts "Tariff Code = #{tariff_code}"
-          puts error
-        end
+        response = client.call(:process_lc_request, :message => build_landed_cost_request(tariff_code, item_value, destination_country_code, destination_state_providence_code))
+        parse_landing_cost_response(response)
       end
 
       def build_soap_client
