@@ -4,10 +4,7 @@ module ActiveMerchant
   module Shipping
     class UPSTradeAbility < Carrier
       SCHEMA = {
-          :landed_cost => '../lib/schema/ups_international_service/LandedCost.wsdl',
-          :export_license_detection => '../lib/schema/ups_international_service/ExportLicense.wsdl',
-          :import_compliance => '../lib/schema/ups_international_service/ImportCompliance.wsdl',
-          :denied_party_screening => '../lib/schema/ups_international_service/DeniedParty.wsdl'
+          :landed_cost => '/schema/ups_international_service/LandedCost.wsdl'
       }
 
       def get_loading_cost(tariff_code, item_value, destination_country_code, destination_state_providence_code = nil)
@@ -17,7 +14,9 @@ module ActiveMerchant
       end
 
       def build_soap_client(type)
-        Savon.client(:wsdl => SCHEMA[type],
+        root = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..'))
+        file = File.join root, SCHEMA[type]
+        Savon.client(:wsdl => file,
                      :namespaces => build_additional_namespaces,
                      :soap_header => build_access_request)
       end
