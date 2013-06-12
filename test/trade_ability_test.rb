@@ -8,6 +8,10 @@ require 'active_shipping'
 class TradeAbilityTest
   include ActiveMerchant::Shipping
 
+  UPS_ORIGIN_NUMBER = "xxxx"
+  UPS_LOGIN = 'xxxx'
+  UPS_PASSWORD = 'xxxx'
+  UPS_KEY = 'xxxx'
   TESTING = true
 
   def initialize
