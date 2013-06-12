@@ -36,10 +36,7 @@ autoload :Quantified, 'vendor/quantified/lib/quantified'
 
 require 'net/https'
 require 'active_utils'
-<<<<<<< HEAD
 require 'savon'
-=======
->>>>>>> 939956142390add65d794952cb27a2120854c19d
 
 require 'active_shipping/shipping/base'
 require 'active_shipping/shipping/response'

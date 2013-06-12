@@ -246,9 +246,4 @@ end #end class
 
 
 test = UpsLabelTest.new
-<<<<<<< HEAD
-    #test.create_ups_ground_label
-=======
-#test.create_ups_ground_label
->>>>>>> 939956142390add65d794952cb27a2120854c19d
 test.run_tests # <== Now go check your folder
