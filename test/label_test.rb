@@ -103,9 +103,11 @@ class UpsLabelTest
 
 
   def get_packages
+    #products = [:description => "Green Dress", :value => "1000", :tariff_code => "6206.20.0000"]
+    products = []
     #please refer Package class (lib/shipping/package.rb) for more info
     [
-        Package.new((3 * 16), [12, 12, 12], :units => :imperial, :description => "Earrings", :value => "149.99")
+        Package.new((3 * 16), [12, 12, 12], :units => :imperial, :description => "Earrings", :value => "149.99", :products => products)
     ]
   end
 

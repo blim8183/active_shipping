@@ -13,28 +13,28 @@ module ActiveMerchant
       LIVE_URL = 'https://onlinetools.ups.com'
 
       RESOURCES = {
-              :rates => 'ups.app/xml/Rate',
-              :track => 'ups.app/xml/Track',
-              :shipment_confirm => 'ups.app/xml/ShipConfirm',
-              :shipment_accept => 'ups.app/xml/ShipAccept',
-              :void => 'ups.app/xml/Void',
-              :address_validation => 'ups.app/xml/XAV'
+          :rates => 'ups.app/xml/Rate',
+          :track => 'ups.app/xml/Track',
+          :shipment_confirm => 'ups.app/xml/ShipConfirm',
+          :shipment_accept => 'ups.app/xml/ShipAccept',
+          :void => 'ups.app/xml/Void',
+          :address_validation => 'ups.app/xml/XAV'
       }
 
       PICKUP_CODES = HashWithIndifferentAccess.new({
-                                                           :daily_pickup => "01",
-                                                           :customer_counter => "03",
-                                                           :one_time_pickup => "06",
-                                                           :on_call_air => "07",
-                                                           :suggested_retail_rates => "11",
-                                                           :letter_center => "19",
-                                                           :air_service_center => "20"
+                                                       :daily_pickup => "01",
+                                                       :customer_counter => "03",
+                                                       :one_time_pickup => "06",
+                                                       :on_call_air => "07",
+                                                       :suggested_retail_rates => "11",
+                                                       :letter_center => "19",
+                                                       :air_service_center => "20"
                                                    })
 
       CUSTOMER_CLASSIFICATIONS = HashWithIndifferentAccess.new({
-                                                                       :wholesale => "01",
-                                                                       :occasional => "03",
-                                                                       :retail => "04"
+                                                                   :wholesale => "01",
+                                                                   :occasional => "03",
+                                                                   :retail => "04"
                                                                })
 
       # these are the defaults described in the UPS API docs,
@@ -42,54 +42,54 @@ module ActiveMerchant
       # so we need to take matters into our own hands
       DEFAULT_CUSTOMER_CLASSIFICATIONS = Hash.new do |hash, key|
         hash[key] = case key.to_sym
-          when :daily_pickup then
-            :wholesale
-          when :customer_counter then
-            :retail
-          else
-            :occasional
-        end
+                      when :daily_pickup then
+                        :wholesale
+                      when :customer_counter then
+                        :retail
+                      else
+                        :occasional
+                    end
       end
 
       DEFAULT_SERVICES = {
-              "01" => "UPS Next Day Air",
-              "02" => "UPS Second Day Air",
-              "03" => "UPS Ground",
-              "07" => "UPS Worldwide Express",
-              "08" => "UPS Worldwide Expedited",
-              "11" => "UPS Standard",
-              "12" => "UPS Three-Day Select",
-              "13" => "UPS Next Day Air Saver",
-              "14" => "UPS Next Day Air Early A.M.",
-              "54" => "UPS Worldwide Express Plus",
-              "59" => "UPS Second Day Air A.M.",
-              "65" => "UPS Saver",
-              "82" => "UPS Today Standard",
-              "83" => "UPS Today Dedicated Courier",
-              "84" => "UPS Today Intercity",
-              "85" => "UPS Today Express",
-              "86" => "UPS Today Express Saver"
+          "01" => "UPS Next Day Air",
+          "02" => "UPS Second Day Air",
+          "03" => "UPS Ground",
+          "07" => "UPS Worldwide Express",
+          "08" => "UPS Worldwide Expedited",
+          "11" => "UPS Standard",
+          "12" => "UPS Three-Day Select",
+          "13" => "UPS Next Day Air Saver",
+          "14" => "UPS Next Day Air Early A.M.",
+          "54" => "UPS Worldwide Express Plus",
+          "59" => "UPS Second Day Air A.M.",
+          "65" => "UPS Saver",
+          "82" => "UPS Today Standard",
+          "83" => "UPS Today Dedicated Courier",
+          "84" => "UPS Today Intercity",
+          "85" => "UPS Today Express",
+          "86" => "UPS Today Express Saver"
       }
 
       CANADA_ORIGIN_SERVICES = {
-              "01" => "UPS Express",
-              "02" => "UPS Expedited",
-              "14" => "UPS Express Early A.M."
+          "01" => "UPS Express",
+          "02" => "UPS Expedited",
+          "14" => "UPS Express Early A.M."
       }
 
       MEXICO_ORIGIN_SERVICES = {
-              "07" => "UPS Express",
-              "08" => "UPS Expedited",
-              "54" => "UPS Express Plus"
+          "07" => "UPS Express",
+          "08" => "UPS Expedited",
+          "54" => "UPS Express Plus"
       }
 
       EU_ORIGIN_SERVICES = {
-              "07" => "UPS Express",
-              "08" => "UPS Expedited"
+          "07" => "UPS Express",
+          "08" => "UPS Expedited"
       }
 
       OTHER_NON_US_ORIGIN_SERVICES = {
-              "07" => "UPS Express"
+          "07" => "UPS Express"
       }
 
       # From http://en.wikipedia.org/w/index.php?title=European_Union&oldid=174718707 (Current as of November 30, 2007)
@@ -98,13 +98,13 @@ module ActiveMerchant
       US_TERRITORIES_TREATED_AS_COUNTRIES = ["AS", "FM", "GU", "MH", "MP", "PW", "PR", "VI"]
 
       CREDIT_CARD_TYPES = {
-              "American Express" => "01",
-              "Discover" => "03",
-              "MasterCard" => "04",
-              "Optima" => "05",
-              "VISA" => "06",
-              "Bravo" => "07",
-              "Diners Club" => "08"
+          "American Express" => "01",
+          "Discover" => "03",
+          "MasterCard" => "04",
+          "Optima" => "05",
+          "VISA" => "06",
+          "Bravo" => "07",
+          "Diners Club" => "08"
       }
 
       def requirements
@@ -130,6 +130,7 @@ module ActiveMerchant
       end
 
       def build_confirmation_request(carrier_service, packages, label_specification, options)
+        imperial = ['US', 'LR', 'MM'].include?(options[:origin][:country])
         packages = Array(packages)
         xml_request = XmlNode.new('ShipmentConfirmRequest') do |root_node|
           root_node << XmlNode.new('Request') do |request|
@@ -137,6 +138,52 @@ module ActiveMerchant
             request << XmlNode.new('RequestOption', 'nonvalidate')
           end
           root_node << XmlNode.new('Shipment') do |shipment|
+            if packages[0] and packages[0].options[:products].length > 0
+              shipment << XmlNode.new('ShipmentServiceOptions') do |service_options|
+                service_options << XmlNode.new('InternationalForms') do |international_forms|
+                  international_forms << XmlNode.new('FormType', "01")
+                  international_forms << XmlNode.new('FormType', "03")
+                  international_forms << XmlNode.new('FormType', "04")
+                  international_forms << XmlNode.new('Contacts') do |contacts|
+                    contacts << XmlNode.new('Producer') do |producer|
+                      producer << XmlNode.new('Option', '02')
+                    end
+                  end
+                  packages.each do |package|
+                    package.options[:products].each do |product|
+                      international_forms << XmlNode.new('Product') do |product_node|
+                        product_node << XmlNode.new('Description', product[:description])
+                        product_node << XmlNode.new('Unit') do |unit|
+                          unit << XmlNode.new('Number', '1')
+                          unit << XmlNode.new('UnitOfMeasurement') do |unit_of_measurement|
+                            unit_of_measurement << XmlNode.new("Code", 'PC')
+                          end
+                          unit << XmlNode.new('Value', product[:value])
+                        end
+                        product_node << XmlNode.new('CommodityCode', product[:tariff_code])
+                        product_node << XmlNode.new('PartNumber', "1")
+                        product_node << XmlNode.new('OriginCountryCode', "US")
+                        product_node << XmlNode.new('NetCostCode', "NO")
+                        product_node << XmlNode.new('PreferenceCriteria', "B")
+                        product_node << XmlNode.new('ProducerInfo', "No[1]")
+                        product_node << XmlNode.new('NumberOfPackagesPerCommodity', "1")
+                        product_node << XmlNode.new('ProductWeight') do |product_weight|
+                          product_weight << XmlNode.new('UnitOfMeasurement') do |unit_of_measurement|
+                            unit_of_measurement << XmlNode.new("Code", imperial ? 'LBS' : 'KGS')
+                          end
+                          product_weight << XmlNode.new("Weight", "3")
+                        end
+                      end
+                    end
+                  end
+                  international_forms << XmlNode.new('InvoiceDate', Time.now.strftime("%Y%m%d"))
+                  international_forms << XmlNode.new('ReasonForExport', "SALE")
+                  international_forms << XmlNode.new('CurrencyCode', "USD")
+                  international_forms << XmlNode.new('ExportDate', Time.now.strftime("%Y%m%d"))
+                  international_forms << XmlNode.new('ExportingCarrier', "UPS")
+                end
+              end
+            end
             shipment << XmlNode.new('Shipper') do |shipper|
               shipper << XmlNode.new("Name", options[:origin][:name])
               shipper << XmlNode.new("AttentionName", options[:origin][:attention_name]) unless options[:origin][:attention_name].blank?
@@ -168,6 +215,23 @@ module ActiveMerchant
                 address << XmlNode.new("ResidentialAddressIndicator", options[:destination][:residential_indicator]) unless options[:destination][:residential_indicator].blank?
               end
             end
+
+            shipment << XmlNode.new("SoldTo") do |sold_to|
+              sold_to << XmlNode.new("CompanyName", options[:destination][:company_name])
+              sold_to << XmlNode.new("AttentionName", options[:destination][:attention_name]) unless options[:destination][:attention_name].blank?
+              sold_to << XmlNode.new("PhoneNumber", options[:destination][:phone]) unless options[:destination][:phone].blank?
+              sold_to << XmlNode.new("Option", "01")
+              sold_to << XmlNode.new("Address") do |address|
+                address << XmlNode.new("AddressLine1", options[:destination][:address_line1])
+                address << XmlNode.new("AddressLine2", options[:destination][:address_line2]) unless options[:destination][:address_line2].blank?
+                address << XmlNode.new("AddressLine3", options[:destination][:address_line3]) unless options[:destination][:address_line3].blank?
+                address << XmlNode.new("City", options[:destination][:city])
+                address << XmlNode.new("StateProvinceCode", options[:destination][:state]) unless options[:destination][:state].blank?
+                address << XmlNode.new("PostalCode", options[:destination][:zip]) unless options[:destination][:zip].blank?
+                address << XmlNode.new("CountryCode", options[:destination][:country])
+                address << XmlNode.new("ResidentialAddressIndicator", options[:destination][:residential_indicator]) unless options[:destination][:residential_indicator].blank?
+              end
+            end
             shipment << XmlNode.new('Service') do |shipment_service|
               shipment_service << XmlNode.new('Code', carrier_service || "14")
               shipment_service << XmlNode.new('Description', DEFAULT_SERVICES[carrier_service] || DEFAULT_SERVICES["14"])
@@ -180,7 +244,6 @@ module ActiveMerchant
               end
             end
             packages.each do |package|
-              imperial = ['US', 'LR', 'MM'].include?(options[:origin][:country])
               shipment << XmlNode.new('Description', package.description) if package.description
               shipment << XmlNode.new("Package") do |package_node|
                 package_node << XmlNode.new("PackagingType") do |packaging_type|
@@ -612,11 +675,11 @@ module ActiveMerchant
             postal_code = address.get_text('PostcodePrimaryLow').to_s
             country = address.get_text('CountryCode').to_s
             @addresses << Location.new(:address1 => address1,
-                                      :address2 => address2,
-                                      :city => city,
-                                      :province => province,
-                                      :postal_code => postal_code,
-                                      :country => country)
+                                       :address2 => address2,
+                                       :city => city,
+                                       :province => province,
+                                       :postal_code => postal_code,
+                                       :country => country)
           end
         end
         AddressValidationResponse.new(success, message, Hash.from_xml(response),
@@ -648,12 +711,12 @@ module ActiveMerchant
             shipment_events = activities.map do |activity|
               description = activity.get_text('Status/StatusType/Description').to_s
               zoneless_time = if (time = activity.get_text('Time')) &&
-                      (date = activity.get_text('Date'))
-                time, date = time.to_s, date.to_s
-                hour, minute, second = time.scan(/\d{2}/)
-                year, month, day = date[0..3], date[4..5], date[6..7]
-                Time.utc(year, month, day, hour, minute, second)
-              end
+                  (date = activity.get_text('Date'))
+                                time, date = time.to_s, date.to_s
+                                hour, minute, second = time.scan(/\d{2}/)
+                                year, month, day = date[0..3], date[4..5], date[6..7]
+                                Time.utc(year, month, day, hour, minute, second)
+                              end
               location = location_from_address_node(activity.elements['ActivityLocation/Address'])
               ShipmentEvent.new(description, zoneless_time, location)
             end
@@ -689,13 +752,13 @@ module ActiveMerchant
       def location_from_address_node(address)
         return nil unless address
         Location.new(
-                :country => node_text_or_nil(address.elements['CountryCode']),
-                :postal_code => node_text_or_nil(address.elements['PostalCode']),
-                :province => node_text_or_nil(address.elements['StateProvinceCode']),
-                :city => node_text_or_nil(address.elements['City']),
-                :address1 => node_text_or_nil(address.elements['AddressLine1']),
-                :address2 => node_text_or_nil(address.elements['AddressLine2']),
-                :address3 => node_text_or_nil(address.elements['AddressLine3'])
+            :country => node_text_or_nil(address.elements['CountryCode']),
+            :postal_code => node_text_or_nil(address.elements['PostalCode']),
+            :province => node_text_or_nil(address.elements['StateProvinceCode']),
+            :city => node_text_or_nil(address.elements['City']),
+            :address1 => node_text_or_nil(address.elements['AddressLine1']),
+            :address2 => node_text_or_nil(address.elements['AddressLine2']),
+            :address3 => node_text_or_nil(address.elements['AddressLine3'])
         )
       end
 
@@ -716,13 +779,13 @@ module ActiveMerchant
         origin = origin.country_code(:alpha2)
 
         name = case origin
-          when "CA" then
-            CANADA_ORIGIN_SERVICES[code]
-          when "MX" then
-            MEXICO_ORIGIN_SERVICES[code]
-          when *EU_COUNTRY_CODES then
-            EU_ORIGIN_SERVICES[code]
-        end
+                 when "CA" then
+                   CANADA_ORIGIN_SERVICES[code]
+                 when "MX" then
+                   MEXICO_ORIGIN_SERVICES[code]
+                 when *EU_COUNTRY_CODES then
+                   EU_ORIGIN_SERVICES[code]
+               end
 
         name ||= OTHER_NON_US_ORIGIN_SERVICES[code] unless name == 'US'
         name ||= DEFAULT_SERVICES[code]
