@@ -139,6 +139,7 @@ module ActiveMerchant
           end
           root_node << XmlNode.new('Shipment') do |shipment|
             if packages[0] and packages[0].options[:products].length > 0
+              shipment << XmlNode.new('Description', "Clothes and clothing accessories")
               if options[:destination][:country] == "CA"
                 totalValue = 0
                 packages.each do |package|
