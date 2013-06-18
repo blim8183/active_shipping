@@ -139,6 +139,16 @@ module ActiveMerchant
           end
           root_node << XmlNode.new('Shipment') do |shipment|
             if packages[0] and packages[0].options[:products].length > 0
+              if options[:destination][:country] == "CA"
+                totalValue = 0
+                packages.each do |package|
+                  totalValue += package.value.to_i
+                end
+                shipment << XmlNode.new('InvoiceLineTotal') do |invoice_line_total|
+                  invoice_line_total << XmlNode.new('CurrencyCode', "USD")
+                  invoice_line_total << XmlNode.new('MonetaryValue', totalValue.to_s)
+                end
+              end
               shipment << XmlNode.new('ShipmentServiceOptions') do |service_options|
                 service_options << XmlNode.new('InternationalForms') do |international_forms|
                   international_forms << XmlNode.new('FormType', "01")
