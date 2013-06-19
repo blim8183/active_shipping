@@ -147,7 +147,7 @@ module ActiveMerchant
                 end
                 shipment << XmlNode.new('InvoiceLineTotal') do |invoice_line_total|
                   invoice_line_total << XmlNode.new('CurrencyCode', "USD")
-                  invoice_line_total << XmlNode.new('MonetaryValue', totalValue.to_s)
+                  invoice_line_total << XmlNode.new('MonetaryValue', (totalValue/100.to_f).to_s)
                 end
               end
               shipment << XmlNode.new('ShipmentServiceOptions') do |service_options|
