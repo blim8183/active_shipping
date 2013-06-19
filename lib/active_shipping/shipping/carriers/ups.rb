@@ -143,7 +143,7 @@ module ActiveMerchant
               if options[:destination][:country] == "CA"
                 totalValue = 0
                 packages.each do |package|
-                  totalValue += package.value.to_s.to_f
+                  totalValue += package.value.to_s.to_i
                 end
                 shipment << XmlNode.new('InvoiceLineTotal') do |invoice_line_total|
                   invoice_line_total << XmlNode.new('CurrencyCode', "USD")
