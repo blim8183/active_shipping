@@ -143,11 +143,11 @@ module ActiveMerchant
               if options[:destination][:country] == "CA"
                 totalValue = 0
                 packages.each do |package|
-                  totalValue += package.value
+                  totalValue += package.value.to_s.to_f
                 end
                 shipment << XmlNode.new('InvoiceLineTotal') do |invoice_line_total|
                   invoice_line_total << XmlNode.new('CurrencyCode', "USD")
-                  invoice_line_total << XmlNode.new('MonetaryValue', (totalValue/100.to_f).to_s)
+                  invoice_line_total << XmlNode.new('MonetaryValue', totalValue.to_s)
                 end
               end
               shipment << XmlNode.new('ShipmentServiceOptions') do |service_options|
@@ -169,7 +169,7 @@ module ActiveMerchant
                           unit << XmlNode.new('UnitOfMeasurement') do |unit_of_measurement|
                             unit_of_measurement << XmlNode.new("Code", 'PC')
                           end
-                          unit << XmlNode.new('Value', product[:value])
+                          unit << XmlNode.new('Value', product[:value].to_s)
                         end
                         product_node << XmlNode.new('CommodityCode', product[:tariff_code])
                         product_node << XmlNode.new('PartNumber', "1")
