@@ -189,6 +189,7 @@ module ActiveMerchant
                   end
                   international_forms << XmlNode.new('InvoiceDate', Time.now.strftime("%Y%m%d"))
                   international_forms << XmlNode.new('ReasonForExport', "SALE")
+                  international_forms << XmlNode.new('TermsOfShipment', "DDP")
                   international_forms << XmlNode.new('CurrencyCode', "USD")
                   international_forms << XmlNode.new('ExportDate', Time.now.strftime("%Y%m%d"))
                   international_forms << XmlNode.new('ExportingCarrier', "UPS")
