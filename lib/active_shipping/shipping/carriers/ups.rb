@@ -132,7 +132,7 @@ module ActiveMerchant
       def build_confirmation_request(carrier_service, packages, label_specification, options)
         imperial = ['US', 'LR', 'MM'].include?(options[:origin][:country])
         packages = Array(packages)
-        international = packages[0] and packages[0].options[:products] and packages[0].options[:products].length > 0
+        international = (packages[0] and packages[0].options[:products] and packages[0].options[:products].length > 0)
         xml_request = XmlNode.new('ShipmentConfirmRequest') do |root_node|
           root_node << XmlNode.new('Request') do |request|
             request << XmlNode.new('RequestAction', 'ShipConfirm')
