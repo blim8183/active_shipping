@@ -132,13 +132,14 @@ module ActiveMerchant
       def build_confirmation_request(carrier_service, packages, label_specification, options)
         imperial = ['US', 'LR', 'MM'].include?(options[:origin][:country])
         packages = Array(packages)
+        international = packages[0] and packages[0].options[:products] and packages[0].options[:products].length > 0
         xml_request = XmlNode.new('ShipmentConfirmRequest') do |root_node|
           root_node << XmlNode.new('Request') do |request|
             request << XmlNode.new('RequestAction', 'ShipConfirm')
             request << XmlNode.new('RequestOption', 'nonvalidate')
           end
           root_node << XmlNode.new('Shipment') do |shipment|
-            if packages[0] and packages[0].options[:products] and packages[0].options[:products].length > 0
+            if international
               shipment << XmlNode.new('Description', "Clothes and clothing accessories")
               if options[:destination][:country] == "CA"
                 totalValue = 0
@@ -248,13 +249,32 @@ module ActiveMerchant
               shipment_service << XmlNode.new('Code', carrier_service || "14")
               shipment_service << XmlNode.new('Description', DEFAULT_SERVICES[carrier_service] || DEFAULT_SERVICES["14"])
             end
-            shipment << XmlNode.new('PaymentInformation') do |payment_info|
-              payment_info << XmlNode.new('Prepaid') do |prepaid|
-                prepaid << XmlNode.new('BillShipper') do |bill_shipper|
-                  bill_shipper << XmlNode.new('AccountNumber', options[:origin][:origin_number])
+
+            if international
+              shipment << XmlNode.new('ItemizedPaymentInformation') do |itemized_payment_information|
+                itemized_payment_information << XmlNode.new('ShipmentCharge') do |shipment_charge|
+                  shipment_charge << XmlNode.new('Type', '01')
+                  shipment_charge << XmlNode.new('BillShipper') do |bill_shipper|
+                    bill_shipper << XmlNode.new('AccountNumber', options[:origin][:origin_number])
+                  end
+                end
+                itemized_payment_information << XmlNode.new('ShipmentCharge') do |shipment_charge|
+                  shipment_charge << XmlNode.new('Type', '02')
+                  shipment_charge << XmlNode.new('BillShipper') do |bill_shipper|
+                    bill_shipper << XmlNode.new('AccountNumber', options[:origin][:origin_number])
+                  end
+                end
+              end
+            else
+              shipment << XmlNode.new('PaymentInformation') do |payment_info|
+                payment_info << XmlNode.new('Prepaid') do |prepaid|
+                  prepaid << XmlNode.new('BillShipper') do |bill_shipper|
+                    bill_shipper << XmlNode.new('AccountNumber', options[:origin][:origin_number])
+                  end
                 end
               end
             end
+
             packages.each do |package|
               shipment << XmlNode.new('Description', package.description) if package.description
               shipment << XmlNode.new("Package") do |package_node|
