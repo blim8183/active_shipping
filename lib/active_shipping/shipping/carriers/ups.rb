@@ -97,6 +97,14 @@ module ActiveMerchant
 
       US_TERRITORIES_TREATED_AS_COUNTRIES = ["AS", "FM", "GU", "MH", "MP", "PW", "PR", "VI"]
 
+      TRACKING_STATUS_CODES = HashWithIndifferentAccess.new({
+        'I' => :in_transit,
+        'D' => :delivered,
+        'X' => :exception,
+        'P' => :pickup,
+        'M' => :manifest_pickup
+      })
+
       CREDIT_CARD_TYPES = {
           "American Express" => "01",
           "Discover" => "03",
