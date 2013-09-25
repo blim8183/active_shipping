@@ -727,15 +727,37 @@ module ActiveMerchant
         message = response_message(xml)
 
         if success
-          tracking_number, origin, destination = nil
+          tracking_number, origin, destination, status_code, status_description = nil
+          delivered, exception = false
+          exception_event = nil
           shipment_events = []
+          status = {}
+          scheduled_delivery_date = nil
 
           first_shipment = xml.elements['/*/Shipment']
           first_package = first_shipment.elements['Package']
           tracking_number = first_shipment.get_text('ShipmentIdentificationNumber | Package/TrackingNumber').to_s
 
+          # Build status hash
+          status_node = first_package.elements['Activity/Status/StatusType']
+          status_code = status_node.get_text('Code').to_s
+          status_description = status_node.get_text('Description').to_s
+          status = TRACKING_STATUS_CODES[status_code]
+
+          if status_description =~ /out.*delivery/i
+            status = :out_for_delivery
+          end
+
           origin, destination = %w{Shipper ShipTo}.map do |location|
             location_from_address_node(first_shipment.elements["#{location}/Address"])
+          end
+
+          # Get scheduled delivery date
+          unless status == :delivered
+            scheduled_delivery_date = parse_ups_datetime({
+                                                           :date => first_shipment.get_text('ScheduledDeliveryDate'),
+                                                           :time => nil
+                                                         })
           end
 
           activities = first_package.get_elements('Activity')
@@ -743,7 +765,7 @@ module ActiveMerchant
             shipment_events = activities.map do |activity|
               description = activity.get_text('Status/StatusType/Description').to_s
               zoneless_time = if (time = activity.get_text('Time')) &&
-                  (date = activity.get_text('Date'))
+                (date = activity.get_text('Date'))
                                 time, date = time.to_s, date.to_s
                                 hour, minute, second = time.scan(/\d{2}/)
                                 year, month, day = date[0..3], date[4..5], date[6..7]
@@ -755,7 +777,10 @@ module ActiveMerchant
 
             shipment_events = shipment_events.sort_by(&:time)
 
-            if origin
+            # UPS will sometimes archive a shipment, stripping all shipment activity except for the delivery
+            # event (see test/fixtures/xml/delivered_shipment_without_events_tracking_response.xml for an example).
+            # This adds an origin event to the shipment activity in such cases.
+            if origin && !(shipment_events.count == 1 && status == :delivered)
               first_event = shipment_events[0]
               same_country = origin.country_code(:alpha2) == first_event.location.country_code(:alpha2)
               same_or_blank_city = first_event.location.city.blank? or first_event.location.city == origin.city
@@ -766,16 +791,29 @@ module ActiveMerchant
                 shipment_events.unshift(origin_event)
               end
             end
-            if shipment_events.last.name.downcase == 'delivered'
+
+            # Has the shipment been delivered?
+            if status == :delivered
+              if !destination
+                destination = shipment_events[-1].location
+              end
               shipment_events[-1] = ShipmentEvent.new(shipment_events.last.name, shipment_events.last.time, destination)
             end
           end
 
         end
         TrackingResponse.new(success, message, Hash.from_xml(response).values.first,
+                             :carrier => @@name,
                              :xml => response,
                              :request => last_request,
+                             :status => status,
+                             :status_code => status_code,
+                             :status_description => status_description,
+                             :scheduled_delivery_date => scheduled_delivery_date,
                              :shipment_events => shipment_events,
+                             :delivered => delivered,
+                             :exception => exception,
+                             :exception_event => exception_event,
                              :origin => origin,
                              :destination => destination,
                              :tracking_number => tracking_number)
@@ -792,6 +830,18 @@ module ActiveMerchant
             :address2 => node_text_or_nil(address.elements['AddressLine2']),
             :address3 => node_text_or_nil(address.elements['AddressLine3'])
         )
+      end
+
+      def parse_ups_datetime(options = {})
+        time, date = options[:time].to_s, options[:date].to_s
+        if time.nil?
+          hour, minute, second = 0
+        else
+          hour, minute, second = time.scan(/\d{2}/)
+        end
+        year, month, day = date[0..3], date[4..5], date[6..7]
+
+        Time.utc(year, month, day, hour, minute, second)
       end
 
       def response_success?(xml)
