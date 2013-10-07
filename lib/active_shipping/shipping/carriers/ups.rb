@@ -206,8 +206,9 @@ module ActiveMerchant
               end
             end
             shipment << XmlNode.new('Shipper') do |shipper|
+              attention_name = options[:origin][:attention_name] ? options[:origin][:attention_name].first(35) : nil
               shipper << XmlNode.new("Name", options[:origin][:name])
-              shipper << XmlNode.new("AttentionName", options[:origin][:attention_name]) unless options[:origin][:attention_name].blank?
+              shipper << XmlNode.new("AttentionName", attention_name) unless attention_name.blank?
               shipper << XmlNode.new("ShipperNumber", options[:origin][:origin_number])
               shipper << XmlNode.new("PhoneNumber", options[:origin][:phone]) unless options[:origin][:phone].blank?
               shipper << XmlNode.new("Address") do |address|
@@ -222,8 +223,10 @@ module ActiveMerchant
               end
             end
             shipment << XmlNode.new('ShipTo') do |shipto|
-              shipto << XmlNode.new("CompanyName", options[:destination][:company_name])
-              shipto << XmlNode.new("AttentionName", options[:destination][:attention_name]) unless options[:destination][:attention_name].blank?
+              company_name = options[:destination][:company_name].first(35)
+              attention_name = options[:destination][:attention_name] ? options[:destination][:attention_name].first(35) : nil
+              shipto << XmlNode.new("CompanyName", company_name)
+              shipto << XmlNode.new("AttentionName", attention_name) unless attention_name.blank?
               shipto << XmlNode.new("PhoneNumber", options[:destination][:phone]) unless options[:destination][:phone].blank?
               shipto << XmlNode.new("Address") do |address|
                 address << XmlNode.new("AddressLine1", options[:destination][:address_line1])
@@ -238,8 +241,10 @@ module ActiveMerchant
             end
 
             shipment << XmlNode.new("SoldTo") do |sold_to|
-              sold_to << XmlNode.new("CompanyName", options[:destination][:company_name])
-              sold_to << XmlNode.new("AttentionName", options[:destination][:attention_name]) unless options[:destination][:attention_name].blank?
+              company_name = options[:destination][:company_name].first(35)
+              attention_name = options[:destination][:attention_name] ? options[:destination][:attention_name].first(35) : nil
+              sold_to << XmlNode.new("CompanyName", company_name)
+              sold_to << XmlNode.new("AttentionName", attention_name) unless attention_name.blank?
               sold_to << XmlNode.new("PhoneNumber", options[:destination][:phone]) unless options[:destination][:phone].blank?
               sold_to << XmlNode.new("Option", "01")
               sold_to << XmlNode.new("Address") do |address|
