@@ -164,6 +164,10 @@ module ActiveMerchant
                   international_forms << XmlNode.new('FormType', "01")
                   international_forms << XmlNode.new('FormType', "03")
                   international_forms << XmlNode.new('FormType', "04")
+                  international_forms << XmlNode.new('BlanketPeriod') do |blanket_period|
+                    blanket_period << XmlNode.new('BeginDate', Time.now.strftime("%Y%m%d"))
+                    blanket_period << XmlNode.new('EndDate', 1.year.from_now.strftime("%Y%m%d"))
+                  end
                   international_forms << XmlNode.new('Contacts') do |contacts|
                     contacts << XmlNode.new('Producer') do |producer|
                       producer << XmlNode.new('Option', '02')
