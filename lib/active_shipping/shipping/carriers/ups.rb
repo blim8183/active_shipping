@@ -610,7 +610,7 @@ module ActiveMerchant
                                                :service_code => service_code,
                                                :packages => packages,
                                                :delivery_range => [delivery_date],
-                                               :negotiated_rate => rated_shipment.get_text('NegotiatedRates/NetSummaryCharges/GrandTotal/MonetaryValue').to_s.to_f)
+                                               :negotiated_rate => rated_shipment.get_text('NegotiatedRates/NetSummaryCharges/GrandTotal/MonetaryValue').to_s.to_f
                                               )
           end
         end
