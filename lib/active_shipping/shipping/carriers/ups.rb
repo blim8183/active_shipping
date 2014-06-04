@@ -535,11 +535,13 @@ module ActiveMerchant
             # not implemented:  * Shipment/ShipmentServiceOptions element
             #                   * Shipment/RateInformation element
 
-            if options[:origin_account]
+            #if options[:origin_account]
               shipment << XmlNode.new("RateInformation") do |rate_info_node|
+                puts "x"
+                puts XmlNode.new("NegotiatedRatesIndicator")
                 rate_info_node << XmlNode.new("NegotiatedRatesIndicator")
               end
-            end
+            #end
 
           end
 
