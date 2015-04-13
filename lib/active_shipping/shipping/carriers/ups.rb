@@ -393,6 +393,8 @@ module ActiveMerchant
         packages = Array(packages)
         access_request = "<?xml version='1.0' ?>" + build_access_request
         confirmation_request = "<?xml version='1.0' encoding='UTF-8' ?>" + build_confirmation_request(carrier_service, packages, label_specification, options)
+        # Debug purposes
+        puts confirmation_request
         response = commit(:shipment_confirm, save_request(access_request + confirmation_request), (options[:test] || false))
         parse_shipment_confirm_response(response, options)
       end
